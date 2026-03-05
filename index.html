@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>鶏やま 最強シフト入力</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    body { font-family: sans-serif; padding: 20px; text-align: center; background: #fdf5e6; }
+    h2 { color: #d32f2f; }
+    #calendar-inline { margin: 0 auto 20px auto; }
+    #btn-submit {
+      background: #4caf50; color: white; border: none; padding: 15px 30px;
+      font-size: 18px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>🐔 鶏やま シフト入力</h2>
+  <div id="calendar-inline"></div>
+  <button id="btn-submit">この日程で送信する！🔥</button>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+  <script>
+    const LIFF_ID = "2009333479-SgIRcYL0";
+
+    const fp = flatpickr("#calendar-inline", {
+      inline: true, mode: "multiple", locale: "ja", dateFormat: "m月d日", minDate: "today"
+    });
+
+    liff.init({ liffId: LIFF_ID }).then(() => {
+      console.log("GitHubからの起動成功だペン！");
+      if (!liff.isLoggedIn()) { liff.login(); }
+    }).catch(err => alert("起動エラー: " + err));
+
+    document.getElementById("btn-submit").addEventListener("click", () => {
+      const selectedDates = fp.selectedDates
+        .sort((a, b) => a - b)
+        .map(d => (d.getMonth() + 1) + "月" + d.getDate() + "日")
+        .join(", ");
+
+      if (!selectedDates) { alert("日付を選んでね！"); return; }
+
+      const message = "【一括シフト希望】\n📅 " + selectedDates + "\n⏰ 17:00〜22:00";
+
+      liff.sendMessages([{ type: "text", text: message }]).then(() => {
+        liff.closeWindow();
+      }).catch(err => {
+        alert("送信失敗！権限(Scope)を確認してね🐧\n" + err);
+      });
+    });
+  </script>
+</body>
+</html>
