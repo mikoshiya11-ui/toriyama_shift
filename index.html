@@ -9,8 +9,8 @@
     body { font-family: sans-serif; padding: 15px; text-align: center; background: #fdf5e6; color: #333; }
     h2 { color: #d32f2f; margin-bottom: 5px; }
     
-    /* 📅 横幅をカレンダー(約310px)に固定してプロっぽく */
-    .container { max-width: 310px; margin: 0 auto; }
+    /* 📅 横幅をカレンダー(約310px)に完全固定 */
+    .container { max-width: 310px; margin: 0 auto; position: relative; }
     #calendar-inline { margin-bottom: 12px; }
     
     /* ⏰ 4大パターンボタン */
@@ -23,12 +23,15 @@
     }
     .pattern-btn.active { background: #fff3e0; border-color: #ff9800; color: #e65100; box-shadow: 0 0 8px rgba(255,152,0,0.2); }
     
-    /* ⌨️ 微調整用の入力欄（ここが抜けてました！） */
-    .manual-row { display: flex; justify-content: center; align-items: center; gap: 8px; padding-top: 5px; }
+    /* ⌨️ 微調整エリア（逃げないための工夫） */
+    .manual-row { display: flex; justify-content: center; align-items: flex-start; gap: 10px; padding-top: 5px; }
+    .time-input-wrapper { position: relative; width: 100px; } /* 入力欄ごとに親を作る */
     .manual-row input { 
-      width: 85px; padding: 10px; font-size: 16px; font-weight: bold; text-align: center;
+      width: 100%; padding: 10px 0; font-size: 16px; font-weight: bold; text-align: center;
       border: 1px solid #ccc; border-radius: 8px; background: #fff;
     }
+    /* 🕒 選択画面を真下に固定する魔法 */
+    .flatpickr-calendar.static { top: 100% !important; left: 50% !important; transform: translateX(-50%) !important; margin-top: 5px; }
 
     #btn-submit { background: #4caf50; color: white; border: none; padding: 18px; font-size: 20px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; box-shadow: 0 4px 10px rgba(76,175,80,0.3); margin-top: 10px; }
   </style>
@@ -49,11 +52,11 @@
     </div>
 
     <div class="section-box">
-      <span class="section-title">⌨️ 細かく調整する</span>
+      <span class="section-title">⌨️ 時間を微調整する</span>
       <div class="manual-row">
-        <input type="text" id="start" value="17:00" readonly>
-        <span style="font-weight:bold; color:#ccc;">〜</span>
-        <input type="text" id="end" value="22:00" readonly>
+        <div class="time-input-wrapper"><input type="text" id="start" value="17:00" readonly></div>
+        <span style="font-weight:bold; color:#ccc; padding-top:10px;">〜</span>
+        <div class="time-input-wrapper"><input type="text" id="end" value="22:00" readonly></div>
       </div>
     </div>
 
@@ -67,8 +70,12 @@
     const LIFF_ID = "2009333479-SgIRcYL0";
     const fp = flatpickr("#calendar-inline", { inline: true, mode: "multiple", locale: "ja", dateFormat: "m月d日", minDate: "today" });
 
-    // 🕒 円盤を絶対に出さない設定
-    const tConfig = { noCalendar: true, enableTime: true, time_24hr: true, locale: "ja", dateFormat: "H:i", minuteIncrement: 15, disableMobile: true };
+    // 🕒 逃げない＆円盤殺しの設定
+    const tConfig = { 
+      noCalendar: true, enableTime: true, time_24hr: true, locale: "ja", dateFormat: "H:i", minuteIncrement: 15,
+      disableMobile: true,
+      static: true // 👈 これが「逃げない（その場に固定）」ためのスイッチ！
+    };
     const sp = flatpickr("#start", tConfig);
     const ep = flatpickr("#end", tConfig);
 
