@@ -10,25 +10,33 @@
     h2 { color: #d32f2f; margin-bottom: 5px; }
     #calendar-inline { margin: 0 auto 20px auto; }
     .time-section { background: white; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .time-flex { display: flex; justify-content: space-around; align-items: center; }
+    .time-flex { display: flex; justify-content: center; align-items: center; gap: 10px; }
     label { font-size: 13px; font-weight: bold; color: #777; display: block; margin-bottom: 5px; }
-    input { width: 100px; border: 1px solid #ccc; border-radius: 8px; padding: 10px; font-size: 18px; text-align: center; background: #f9f9f9; font-weight: bold; }
-    /* 円盤を殺した後のリストを使いやすくする */
-    .flatpickr-time input { border: none !important; }
-    #btn-submit { background: #4caf50; color: white; border: none; padding: 18px; font-size: 20px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; box-shadow: 0 4px 10px rgba(76,175,80,0.3); transition: 0.2s; }
+    /* 宇宙人を寄せ付けないドロップダウン形式 */
+    select { padding: 10px; font-size: 18px; border-radius: 8px; border: 1px solid #ccc; background: #f9f9f9; font-weight: bold; cursor: pointer; }
+    #btn-submit { background: #4caf50; color: white; border: none; padding: 18px; font-size: 20px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; box-shadow: 0 4px 10px rgba(76,175,80,0.3); }
   </style>
 </head>
 <body>
   <h2>🐔 鶏やま シフト入力</h2>
-  <p style="font-size:14px; margin-top:0;">希望日をタップ！（複数OK）</p>
   <div id="calendar-inline"></div>
+
   <div class="time-section">
     <div class="time-flex">
-      <div><label>開始</label><input type="text" id="start" value="17:00" readonly></div>
-      <div style="font-size:24px; padding-top:20px; color:#ccc;">〜</div>
-      <div><label>終了</label><input type="text" id="end" value="22:00" readonly></div>
+      <div>
+        <label>開始</label>
+        <select id="startH"><option value="17" selected>17</option><option value="18">18</option><option value="19">19</option></select>時
+        <select id="startM"><option value="00" selected>00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option></select>分
+      </div>
+      <div style="font-size:20px; padding-top:15px;">〜</div>
+      <div>
+        <label>終了</label>
+        <select id="endH"><option value="21">21</option><option value="22" selected>22</option><option value="23">23</option></select>時
+        <select id="endM"><option value="00" selected>00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option></select>分
+      </div>
     </div>
   </div>
+
   <button id="btn-submit">この内容で登録！🐧🔥</button>
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -37,26 +45,14 @@
   <script>
     const LIFF_ID = "2009333479-SgIRcYL0";
     const fp = flatpickr("#calendar-inline", { inline: true, mode: "multiple", locale: "ja", dateFormat: "m月d日", minDate: "today" });
-    
-    // 🕒 円盤殺しの設定
-    const tConfig = { 
-      noCalendar: true, 
-      enableTime: true, 
-      time_24hr: true, 
-      locale: "ja", 
-      dateFormat: "H:i", 
-      minuteIncrement: 15,
-      disableMobile: true // 👈 これがスマホの「円盤」を強制停止させるスイッチです！
-    };
-    flatpickr("#start", tConfig);
-    flatpickr("#end", tConfig);
 
     liff.init({ liffId: LIFF_ID }).then(() => { if (!liff.isLoggedIn()) liff.login(); });
 
     document.getElementById("btn-submit").addEventListener("click", () => {
       const dates = fp.selectedDates.sort((a,b)=>a-b).map(d => (d.getMonth()+1) + "月" + d.getDate() + "日").join(", ");
-      const startTime = document.getElementById("start").value;
-      const endTime = document.getElementById("end").value;
+      const startTime = document.getElementById("startH").value + ":" + document.getElementById("startM").value;
+      const endTime = document.getElementById("endH").value + ":" + document.getElementById("endM").value;
+      
       if (!dates) return alert("日付を選んでね！");
       const msg = "【一括シフト希望】\n📅 " + dates + "\n⏰ " + startTime + "〜" + endTime;
       liff.sendMessages([{ type: "text", text: msg }]).then(() => liff.closeWindow());
