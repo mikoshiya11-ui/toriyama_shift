@@ -9,14 +9,21 @@
     body { font-family: sans-serif; padding: 15px; text-align: center; background: #fdf5e6; color: #333; }
     h2 { color: #d32f2f; margin-bottom: 5px; }
     #calendar-inline { margin: 0 auto 15px auto; }
-    .pattern-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    
+    /* 🕒 4択ボタンのエリア */
+    .pattern-container { background: white; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .pattern-title { font-size: 14px; font-weight: bold; color: #777; margin-bottom: 10px; display: block; }
+    .pattern-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .pattern-btn { 
-      background: white; border: 2px solid #ddd; border-radius: 10px; padding: 12px 5px;
+      background: #f9f9f9; border: 2px solid #eee; border-radius: 10px; padding: 15px 5px;
       font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s;
     }
-    .pattern-btn.active { background: #fff3e0; border-color: #ff9800; color: #e65100; box-shadow: 0 0 10px rgba(255,152,0,0.3); }
-    .custom-time { background: white; padding: 10px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 15px; }
-    input[type="text"] { width: 80px; border: 1px solid #ccc; border-radius: 5px; padding: 8px; text-align: center; font-size: 16px; font-weight: bold; background: #f9f9f9; }
+    .pattern-btn.active { background: #fff3e0; border-color: #ff9800; color: #e65100; box-shadow: 0 0 10px rgba(255,152,0,0.2); }
+    
+    /* ⚙️ カスタム入力エリア（通常は隠しておくor控えめに） */
+    .custom-area { font-size: 12px; color: #999; margin-bottom: 15px; }
+    .custom-area input { border: none; background: transparent; font-weight: bold; color: #333; width: 50px; text-align: center; font-size: 14px; }
+
     #btn-submit { background: #4caf50; color: white; border: none; padding: 18px; font-size: 20px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; box-shadow: 0 4px 10px rgba(76,175,80,0.3); }
   </style>
 </head>
@@ -24,17 +31,19 @@
   <h2>🐔 鶏やま シフト入力</h2>
   <div id="calendar-inline"></div>
 
-  <p style="font-size:13px; font-weight:bold; margin-bottom:8px;">⏰ 時間帯を選んでね！</p>
-  <div class="pattern-grid">
-    <button class="pattern-btn" onclick="setTime('17:00','22:00',this)">17:00〜22:00</button>
-    <button class="pattern-btn" onclick="setTime('17:00','23:00',this)">17:00〜23:00</button>
-    <button class="pattern-btn" onclick="setTime('15:00','23:00',this)">15:00〜23:00</button>
-    <button class="pattern-btn" onclick="setTime('13:00','24:00',this)">13:00〜24:00</button>
+  <div class="pattern-container">
+    <span class="pattern-title">⏰ 定番の時間帯をタップ！</span>
+    <div class="pattern-grid">
+      <button class="pattern-btn" onclick="apply('17:00','22:00',this)">17:00 〜 22:00</button>
+      <button class="pattern-btn" onclick="apply('17:00','23:00',this)">17:00 〜 23:00</button>
+      <button class="pattern-btn" onclick="apply('15:00','23:00',this)">15:00 〜 23:00</button>
+      <button class="pattern-btn" onclick="apply('13:00','24:00',this)">13:00 〜 24:00</button>
+    </div>
   </div>
 
-  <div class="custom-time">
-    <span style="font-size:12px; color:#666;">その他の時間：</span>
-    <input type="text" id="start" value="17:00" readonly> 〜 <input type="text" id="end" value="22:00" readonly>
+  <div class="custom-area">
+    選択中：<input type="text" id="start" value="17:00" readonly> 〜 <input type="text" id="end" value="22:00" readonly>
+    <br>(変更したい時はボタンを押し直してね)
   </div>
 
   <button id="btn-submit">これで登録するペン！🐧🔥</button>
@@ -45,14 +54,10 @@
   <script>
     const LIFF_ID = "2009333479-SgIRcYL0";
     const fp = flatpickr("#calendar-inline", { inline: true, mode: "multiple", locale: "ja", dateFormat: "m月d日", minDate: "today" });
-    
-    // 🕒 予備の時計（円盤は絶対出さない！）
-    const tConfig = { noCalendar: true, enableTime: true, time_24hr: true, locale: "ja", dateFormat: "H:i", minuteIncrement: 15, disableMobile: true };
-    const sp = flatpickr("#start", tConfig);
-    const ep = flatpickr("#end", tConfig);
 
-    function setTime(s, e, btn) {
-      sp.setDate(s); ep.setDate(e);
+    function apply(s, e, btn) {
+      document.getElementById('start').value = s;
+      document.getElementById('end').value = e;
       document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     }
