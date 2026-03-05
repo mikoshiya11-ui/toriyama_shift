@@ -8,45 +8,57 @@
   <style>
     body { font-family: sans-serif; padding: 15px; text-align: center; background: #fdf5e6; color: #333; }
     h2 { color: #d32f2f; margin-bottom: 5px; }
-    #calendar-inline { margin: 0 auto 15px auto; }
     
-    /* 🕒 4択ボタンのエリア */
-    .pattern-container { background: white; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .pattern-title { font-size: 14px; font-weight: bold; color: #777; margin-bottom: 10px; display: block; }
-    .pattern-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    /* 📅 カレンダーとサイズを統一 */
+    .container { max-width: 310px; margin: 0 auto; }
+    #calendar-inline { margin-bottom: 15px; }
+    
+    /* ⏰ 4択ボタンエリア */
+    .section-box { background: white; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .section-title { font-size: 13px; font-weight: bold; color: #777; margin-bottom: 8px; display: block; }
+    .pattern-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .pattern-btn { 
-      background: #f9f9f9; border: 2px solid #eee; border-radius: 10px; padding: 15px 5px;
-      font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s;
+      background: #f9f9f9; border: 2px solid #eee; border-radius: 10px; padding: 12px 2px;
+      font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s;
     }
-    .pattern-btn.active { background: #fff3e0; border-color: #ff9800; color: #e65100; box-shadow: 0 0 10px rgba(255,152,0,0.2); }
+    .pattern-btn.active { background: #fff3e0; border-color: #ff9800; color: #e65100; box-shadow: 0 0 8px rgba(255,152,0,0.2); }
     
-    /* ⚙️ カスタム入力エリア（通常は隠しておくor控えめに） */
-    .custom-area { font-size: 12px; color: #999; margin-bottom: 15px; }
-    .custom-area input { border: none; background: transparent; font-weight: bold; color: #333; width: 50px; text-align: center; font-size: 14px; }
+    /* ⌨️ 手入力エリア（円盤殺し済み） */
+    .manual-row { display: flex; justify-content: center; align-items: center; gap: 10px; padding-top: 5px; }
+    .manual-row input { 
+      width: 80px; padding: 8px; font-size: 16px; font-weight: bold; text-align: center;
+      border: 1px solid #ccc; border-radius: 6px; background: #fff;
+    }
 
-    #btn-submit { background: #4caf50; color: white; border: none; padding: 18px; font-size: 20px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; box-shadow: 0 4px 10px rgba(76,175,80,0.3); }
+    #btn-submit { background: #4caf50; color: white; border: none; padding: 18px; font-size: 20px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; box-shadow: 0 4px 10px rgba(76,175,80,0.3); margin-top: 5px; }
   </style>
 </head>
 <body>
-  <h2>🐔 鶏やま シフト入力</h2>
-  <div id="calendar-inline"></div>
+  <div class="container">
+    <h2>🐔 鶏やま シフト入力</h2>
+    <div id="calendar-inline"></div>
 
-  <div class="pattern-container">
-    <span class="pattern-title">⏰ 定番の時間帯をタップ！</span>
-    <div class="pattern-grid">
-      <button class="pattern-btn" onclick="apply('17:00','22:00',this)">17:00 〜 22:00</button>
-      <button class="pattern-btn" onclick="apply('17:00','23:00',this)">17:00 〜 23:00</button>
-      <button class="pattern-btn" onclick="apply('15:00','23:00',this)">15:00 〜 23:00</button>
-      <button class="pattern-btn" onclick="apply('13:00','24:00',this)">13:00 〜 24:00</button>
+    <div class="section-box">
+      <span class="section-title">⏰ 定番をタップ！</span>
+      <div class="pattern-grid">
+        <button class="pattern-btn" id="p1" onclick="apply('17:00','22:00',this)">17:00〜22:00</button>
+        <button class="pattern-btn" id="p2" onclick="apply('17:00','23:00',this)">17:00〜23:00</button>
+        <button class="pattern-btn" id="p3" onclick="apply('15:00','23:00',this)">15:00〜23:00</button>
+        <button class="pattern-btn" id="p4" onclick="apply('13:00','24:00',this)">13:00〜24:00</button>
+      </div>
     </div>
-  </div>
 
-  <div class="custom-area">
-    選択中：<input type="text" id="start" value="17:00" readonly> 〜 <input type="text" id="end" value="22:00" readonly>
-    <br>(変更したい時はボタンを押し直してね)
-  </div>
+    <div class="section-box">
+      <span class="section-title">⌨️ 時間を微調整する</span>
+      <div class="manual-row">
+        <input type="text" id="start" value="17:00">
+        <span style="font-weight:bold; color:#ccc;">〜</span>
+        <input type="text" id="end" value="22:00">
+      </div>
+    </div>
 
-  <button id="btn-submit">これで登録するペン！🐧🔥</button>
+    <button id="btn-submit">これで登録するペン！🐧🔥</button>
+  </div>
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -55,9 +67,14 @@
     const LIFF_ID = "2009333479-SgIRcYL0";
     const fp = flatpickr("#calendar-inline", { inline: true, mode: "multiple", locale: "ja", dateFormat: "m月d日", minDate: "today" });
 
+    // 🕒 手入力用：宇宙人（円盤）を絶対に出さない設定
+    const tConfig = { noCalendar: true, enableTime: true, time_24hr: true, locale: "ja", dateFormat: "H:i", minuteIncrement: 15, disableMobile: true };
+    const sp = flatpickr("#start", tConfig);
+    const ep = flatpickr("#end", tConfig);
+
     function apply(s, e, btn) {
-      document.getElementById('start').value = s;
-      document.getElementById('end').value = e;
+      sp.setDate(s);
+      ep.setDate(e);
       document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     }
