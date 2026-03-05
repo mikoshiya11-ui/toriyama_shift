@@ -13,8 +13,9 @@
     .time-flex { display: flex; justify-content: space-around; align-items: center; }
     label { font-size: 13px; font-weight: bold; color: #777; display: block; margin-bottom: 5px; }
     input { width: 100px; border: 1px solid #ccc; border-radius: 8px; padding: 10px; font-size: 18px; text-align: center; background: #f9f9f9; font-weight: bold; }
+    /* 円盤を殺した後のリストを使いやすくする */
+    .flatpickr-time input { border: none !important; }
     #btn-submit { background: #4caf50; color: white; border: none; padding: 18px; font-size: 20px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; box-shadow: 0 4px 10px rgba(76,175,80,0.3); transition: 0.2s; }
-    #btn-submit:active { transform: scale(0.98); }
   </style>
 </head>
 <body>
@@ -23,9 +24,9 @@
   <div id="calendar-inline"></div>
   <div class="time-section">
     <div class="time-flex">
-      <div><label>開始</label><input type="text" id="start" value="17:00"></div>
+      <div><label>開始</label><input type="text" id="start" value="17:00" readonly></div>
       <div style="font-size:24px; padding-top:20px; color:#ccc;">〜</div>
-      <div><label>終了</label><input type="text" id="end" value="22:00"></div>
+      <div><label>終了</label><input type="text" id="end" value="22:00" readonly></div>
     </div>
   </div>
   <button id="btn-submit">この内容で登録！🐧🔥</button>
@@ -35,10 +36,18 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
   <script>
     const LIFF_ID = "2009333479-SgIRcYL0";
-    // 📅 カレンダー設定
     const fp = flatpickr("#calendar-inline", { inline: true, mode: "multiple", locale: "ja", dateFormat: "m月d日", minDate: "today" });
-    // 🕒 時計設定（スマホのシステム時計を回避して自前で表示！）
-    const tConfig = { noCalendar: true, enableTime: true, time_24hr: true, locale: "ja", dateFormat: "H:i", minuteIncrement: 15 };
+    
+    // 🕒 円盤殺しの設定
+    const tConfig = { 
+      noCalendar: true, 
+      enableTime: true, 
+      time_24hr: true, 
+      locale: "ja", 
+      dateFormat: "H:i", 
+      minuteIncrement: 15,
+      disableMobile: true // 👈 これがスマホの「円盤」を強制停止させるスイッチです！
+    };
     flatpickr("#start", tConfig);
     flatpickr("#end", tConfig);
 
