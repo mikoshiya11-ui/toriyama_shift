@@ -9,12 +9,12 @@
     body { font-family: sans-serif; padding: 15px; text-align: center; background: #fdf5e6; color: #333; }
     h2 { color: #d32f2f; margin-bottom: 5px; }
     
-    /* 📅 カレンダーとサイズを統一 */
+    /* 📅 横幅をカレンダー(約310px)に固定してプロっぽく */
     .container { max-width: 310px; margin: 0 auto; }
-    #calendar-inline { margin-bottom: 15px; }
+    #calendar-inline { margin-bottom: 12px; }
     
-    /* ⏰ 4択ボタンエリア */
-    .section-box { background: white; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    /* ⏰ 4大パターンボタン */
+    .section-box { background: white; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     .section-title { font-size: 13px; font-weight: bold; color: #777; margin-bottom: 8px; display: block; }
     .pattern-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .pattern-btn { 
@@ -23,14 +23,14 @@
     }
     .pattern-btn.active { background: #fff3e0; border-color: #ff9800; color: #e65100; box-shadow: 0 0 8px rgba(255,152,0,0.2); }
     
-    /* ⌨️ 手入力エリア（円盤殺し済み） */
-    .manual-row { display: flex; justify-content: center; align-items: center; gap: 10px; padding-top: 5px; }
+    /* ⌨️ 微調整用の入力欄（ここが抜けてました！） */
+    .manual-row { display: flex; justify-content: center; align-items: center; gap: 8px; padding-top: 5px; }
     .manual-row input { 
-      width: 80px; padding: 8px; font-size: 16px; font-weight: bold; text-align: center;
-      border: 1px solid #ccc; border-radius: 6px; background: #fff;
+      width: 85px; padding: 10px; font-size: 16px; font-weight: bold; text-align: center;
+      border: 1px solid #ccc; border-radius: 8px; background: #fff;
     }
 
-    #btn-submit { background: #4caf50; color: white; border: none; padding: 18px; font-size: 20px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; box-shadow: 0 4px 10px rgba(76,175,80,0.3); margin-top: 5px; }
+    #btn-submit { background: #4caf50; color: white; border: none; padding: 18px; font-size: 20px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; box-shadow: 0 4px 10px rgba(76,175,80,0.3); margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -39,21 +39,21 @@
     <div id="calendar-inline"></div>
 
     <div class="section-box">
-      <span class="section-title">⏰ 定番をタップ！</span>
+      <span class="section-title">⏰ 定番をワンタップ！</span>
       <div class="pattern-grid">
-        <button class="pattern-btn" id="p1" onclick="apply('17:00','22:00',this)">17:00〜22:00</button>
-        <button class="pattern-btn" id="p2" onclick="apply('17:00','23:00',this)">17:00〜23:00</button>
-        <button class="pattern-btn" id="p3" onclick="apply('15:00','23:00',this)">15:00〜23:00</button>
-        <button class="pattern-btn" id="p4" onclick="apply('13:00','24:00',this)">13:00〜24:00</button>
+        <button class="pattern-btn" onclick="apply('17:00','22:00',this)">17:00〜22:00</button>
+        <button class="pattern-btn" onclick="apply('17:00','23:00',this)">17:00〜23:00</button>
+        <button class="pattern-btn" onclick="apply('15:00','23:00',this)">15:00〜23:00</button>
+        <button class="pattern-btn" onclick="apply('13:00','24:00',this)">13:00〜24:00</button>
       </div>
     </div>
 
     <div class="section-box">
-      <span class="section-title">⌨️ 時間を微調整する</span>
+      <span class="section-title">⌨️ 細かく調整する</span>
       <div class="manual-row">
-        <input type="text" id="start" value="17:00">
+        <input type="text" id="start" value="17:00" readonly>
         <span style="font-weight:bold; color:#ccc;">〜</span>
-        <input type="text" id="end" value="22:00">
+        <input type="text" id="end" value="22:00" readonly>
       </div>
     </div>
 
@@ -67,14 +67,13 @@
     const LIFF_ID = "2009333479-SgIRcYL0";
     const fp = flatpickr("#calendar-inline", { inline: true, mode: "multiple", locale: "ja", dateFormat: "m月d日", minDate: "today" });
 
-    // 🕒 手入力用：宇宙人（円盤）を絶対に出さない設定
+    // 🕒 円盤を絶対に出さない設定
     const tConfig = { noCalendar: true, enableTime: true, time_24hr: true, locale: "ja", dateFormat: "H:i", minuteIncrement: 15, disableMobile: true };
     const sp = flatpickr("#start", tConfig);
     const ep = flatpickr("#end", tConfig);
 
     function apply(s, e, btn) {
-      sp.setDate(s);
-      ep.setDate(e);
+      sp.setDate(s); ep.setDate(e);
       document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     }
