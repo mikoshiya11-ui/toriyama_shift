@@ -8,6 +8,9 @@
   <style>
     body { font-family: sans-serif; padding: 20px; text-align: center; background: #fdf5e6; }
     h2 { color: #d32f2f; }
+    .input-group { margin-bottom: 15px; text-align: left; background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
+    label { font-size: 14px; font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
+    input[type="time"] { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
     #calendar-inline { margin: 0 auto 20px auto; }
     #btn-submit {
       background: #4caf50; color: white; border: none; padding: 15px 30px;
@@ -17,8 +20,19 @@
 </head>
 <body>
   <h2>🐔 鶏やま シフト入力</h2>
+  
   <div id="calendar-inline"></div>
-  <button id="btn-submit">この日程で送信する！🔥</button>
+
+  <div class="input-group">
+    <label>⏰ 開始時刻</label>
+    <input type="time" id="startTime" value="17:00">
+  </div>
+  <div class="input-group">
+    <label>⏰ 終了時刻</label>
+    <input type="time" id="endTime" value="22:00">
+  </div>
+
+  <button id="btn-submit">この内容で登録！✨</button>
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -40,15 +54,16 @@
         .map(d => (d.getMonth() + 1) + "月" + d.getDate() + "日")
         .join(", ");
 
+      const start = document.getElementById("startTime").value;
+      const end = document.getElementById("endTime").value;
+
       if (!selectedDates) { alert("日付を選んでね！"); return; }
 
-      const message = "【一括シフト希望】\n📅 " + selectedDates + "\n⏰ 17:00〜22:00";
+      const message = "【一括シフト希望】\n📅 " + selectedDates + "\n⏰ " + start + "〜" + end;
 
       liff.sendMessages([{ type: "text", text: message }]).then(() => {
         liff.closeWindow();
-      }).catch(err => {
-        alert("送信失敗だペン🐧: " + err);
-      });
+      }).catch(err => alert("送信失敗: " + err));
     });
   </script>
 </body>
