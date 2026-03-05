@@ -6,33 +6,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
-    body { font-family: sans-serif; padding: 20px; text-align: center; background: #fdf5e6; }
-    h2 { color: #d32f2f; }
-    .input-group { margin-bottom: 15px; text-align: left; background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
-    label { font-size: 14px; font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
-    input[type="time"] { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+    body { font-family: sans-serif; padding: 20px; text-align: center; background: #fdf5e6; color: #333; }
+    h2 { color: #d32f2f; margin-bottom: 5px; }
     #calendar-inline { margin: 0 auto 20px auto; }
-    #btn-submit {
-      background: #4caf50; color: white; border: none; padding: 15px 30px;
-      font-size: 18px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold;
-    }
+    .input-section { background: white; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .time-flex { display: flex; justify-content: space-around; align-items: center; }
+    .time-box { width: 45%; }
+    label { font-size: 13px; font-weight: bold; color: #777; display: block; margin-bottom: 5px; }
+    input { width: 100%; border: 1px solid #ccc; border-radius: 8px; padding: 10px; font-size: 16px; text-align: center; background: #f9f9f9; }
+    #btn-submit { background: #4caf50; color: white; border: none; padding: 18px; font-size: 20px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; box-shadow: 0 4px 10px rgba(76,175,80,0.3); transition: 0.2s; }
+    #btn-submit:active { transform: scale(0.98); box-shadow: none; }
   </style>
 </head>
 <body>
   <h2>🐔 鶏やま シフト入力</h2>
+  <p style="font-size:14px; margin-top:0;">希望日をタップしてね！（複数OK）</p>
   
   <div id="calendar-inline"></div>
 
-  <div class="input-group">
-    <label>⏰ 開始時刻</label>
-    <input type="time" id="startTime" value="17:00">
-  </div>
-  <div class="input-group">
-    <label>⏰ 終了時刻</label>
-    <input type="time" id="endTime" value="22:00">
+  <div class="input-section">
+    <div class="time-flex">
+      <div class="time-box">
+        <label>開始時刻</label>
+        <input type="text" id="start" value="17:00">
+      </div>
+      <div style="font-size:20px; padding-top:20px;">〜</div>
+      <div class="time-box">
+        <label>終了時刻</label>
+        <input type="text" id="end" value="22:00">
+      </div>
+    </div>
   </div>
 
-  <button id="btn-submit">この内容で登録！✨</button>
+  <button id="btn-submit">この内容で登録！🐧🔥</button>
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -40,28 +46,28 @@
   <script>
     const LIFF_ID = "2009333479-SgIRcYL0";
 
-    const fp = flatpickr("#calendar-inline", {
-      inline: true, mode: "multiple", locale: "ja", dateFormat: "m月d日", minDate: "today"
-    });
+    // カレンダー設定
+    const fp = flatpickr("#calendar-inline", { inline: true, mode: "multiple", locale: "ja", dateFormat: "m月d日", minDate: "today" });
+
+    // 🕒 オシャレな時計設定（システム時計を回避）
+    const tConfig = { noCalendar: true, enableTime: true, time_24hr: true, locale: "ja", dateFormat: "H:i" };
+    flatpickr("#start", tConfig);
+    flatpickr("#end", tConfig);
 
     liff.init({ liffId: LIFF_ID }).then(() => {
       if (!liff.isLoggedIn()) { liff.login(); }
     }).catch(err => alert("起動エラー: " + err));
 
     document.getElementById("btn-submit").addEventListener("click", () => {
-      const selectedDates = fp.selectedDates
-        .sort((a, b) => a - b)
-        .map(d => (d.getMonth() + 1) + "月" + d.getDate() + "日")
-        .join(", ");
+      const dates = fp.selectedDates.sort((a,b)=>a-b).map(d => (d.getMonth()+1) + "月" + d.getDate() + "日").join(", ");
+      const startTime = document.getElementById("start").value;
+      const endTime = document.getElementById("end").value;
 
-      const start = document.getElementById("startTime").value;
-      const end = document.getElementById("endTime").value;
+      if (!dates) { alert("日付を選んでね！"); return; }
 
-      if (!selectedDates) { alert("日付を選んでね！"); return; }
+      const msg = "【一括シフト希望】\n📅 " + dates + "\n⏰ " + startTime + "〜" + endTime;
 
-      const message = "【一括シフト希望】\n📅 " + selectedDates + "\n⏰ " + start + "〜" + end;
-
-      liff.sendMessages([{ type: "text", text: message }]).then(() => {
+      liff.sendMessages([{ type: "text", text: msg }]).then(() => {
         liff.closeWindow();
       }).catch(err => alert("送信失敗: " + err));
     });
