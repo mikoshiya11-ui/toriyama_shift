@@ -8,12 +8,8 @@
   <style>
     body { font-family: sans-serif; padding: 15px; text-align: center; background: #fdf5e6; color: #333; }
     h2 { color: #d32f2f; margin-bottom: 5px; }
-    
-    /* 📅 横幅をカレンダー(約310px)に完全固定 */
-    .container { max-width: 310px; margin: 0 auto; position: relative; }
+    .container { max-width: 310px; margin: 0 auto; }
     #calendar-inline { margin-bottom: 12px; }
-    
-    /* ⏰ 4大パターンボタン */
     .section-box { background: white; padding: 12px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     .section-title { font-size: 13px; font-weight: bold; color: #777; margin-bottom: 8px; display: block; }
     .pattern-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -23,15 +19,14 @@
     }
     .pattern-btn.active { background: #fff3e0; border-color: #ff9800; color: #e65100; box-shadow: 0 0 8px rgba(255,152,0,0.2); }
     
-    /* ⌨️ 微調整エリア（逃げないための工夫） */
-    .manual-row { display: flex; justify-content: center; align-items: flex-start; gap: 10px; padding-top: 5px; }
-    .time-input-wrapper { position: relative; width: 100px; } /* 入力欄ごとに親を作る */
+    /* 👽 宇宙人（純正時計）を雇った入力欄 */
+    .manual-row { display: flex; justify-content: center; align-items: center; gap: 10px; padding-top: 5px; }
     .manual-row input { 
-      width: 100%; padding: 10px 0; font-size: 16px; font-weight: bold; text-align: center;
-      border: 1px solid #ccc; border-radius: 8px; background: #fff;
+      width: 110px; padding: 8px; font-size: 18px; font-weight: bold; text-align: center;
+      border: 2px solid #ccc; border-radius: 8px; background: #fff; color: #333;
+      /* 純正っぽさを消してオシャレにする魔法 */
+      -webkit-appearance: none;
     }
-    /* 🕒 選択画面を真下に固定する魔法 */
-    .flatpickr-calendar.static { top: 100% !important; left: 50% !important; transform: translateX(-50%) !important; margin-top: 5px; }
 
     #btn-submit { background: #4caf50; color: white; border: none; padding: 18px; font-size: 20px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; box-shadow: 0 4px 10px rgba(76,175,80,0.3); margin-top: 10px; }
   </style>
@@ -47,16 +42,16 @@
         <button class="pattern-btn" onclick="apply('17:00','22:00',this)">17:00〜22:00</button>
         <button class="pattern-btn" onclick="apply('17:00','23:00',this)">17:00〜23:00</button>
         <button class="pattern-btn" onclick="apply('15:00','23:00',this)">15:00〜23:00</button>
-        <button class="pattern-btn" onclick="apply('13:00','24:00',this)">13:00〜24:00</button>
+        <button class="pattern-btn" onclick="apply('13:00','00:00',this)">13:00〜24:00</button>
       </div>
     </div>
 
     <div class="section-box">
-      <span class="section-title">⌨️ 時間を微調整する</span>
+      <span class="section-title">⌨️ 宇宙人で微調整する</span>
       <div class="manual-row">
-        <div class="time-input-wrapper"><input type="text" id="start" value="17:00" readonly></div>
-        <span style="font-weight:bold; color:#ccc; padding-top:10px;">〜</span>
-        <div class="time-input-wrapper"><input type="text" id="end" value="22:00" readonly></div>
+        <input type="time" id="start" value="17:00">
+        <span style="font-weight:bold; color:#ccc;">〜</span>
+        <input type="time" id="end" value="22:00">
       </div>
     </div>
 
@@ -70,17 +65,10 @@
     const LIFF_ID = "2009333479-SgIRcYL0";
     const fp = flatpickr("#calendar-inline", { inline: true, mode: "multiple", locale: "ja", dateFormat: "m月d日", minDate: "today" });
 
-    // 🕒 逃げない＆円盤殺しの設定
-    const tConfig = { 
-      noCalendar: true, enableTime: true, time_24hr: true, locale: "ja", dateFormat: "H:i", minuteIncrement: 15,
-      disableMobile: true,
-      static: true // 👈 これが「逃げない（その場に固定）」ためのスイッチ！
-    };
-    const sp = flatpickr("#start", tConfig);
-    const ep = flatpickr("#end", tConfig);
-
     function apply(s, e, btn) {
-      sp.setDate(s); ep.setDate(e);
+      // 宇宙人の入れ物に地球人のデータを流し込む
+      document.getElementById('start').value = s;
+      document.getElementById('end').value = e;
       document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     }
@@ -89,8 +77,8 @@
 
     document.getElementById("btn-submit").addEventListener("click", () => {
       const dates = fp.selectedDates.sort((a,b)=>a-b).map(d => (d.getMonth()+1) + "月" + d.getDate() + "日").join(", ");
-      const startTime = document.getElementById("start").value;
-      const endTime = document.getElementById("end").value;
+      const startTime = document.getElementById('start').value;
+      const endTime = document.getElementById('end').value;
       if (!dates) return alert("日付を選んでね！");
       const msg = "【一括シフト希望】\n📅 " + dates + "\n⏰ " + startTime + "〜" + endTime;
       liff.sendMessages([{ type: "text", text: msg }]).then(() => liff.closeWindow());
