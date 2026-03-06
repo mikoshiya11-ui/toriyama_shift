@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>鶏やま シフト掲示板</title>
+  <style>
+    :root { --main-bg: #1a1a1a; --card-bg: #2d2d2d; --accent: #ff9800; --text: #eee; }
+    body { font-family: sans-serif; background: var(--main-bg); color: var(--text); margin: 0; padding: 15px; }
+    h2 { text-align: center; color: var(--accent); margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+    
+    .tab-container { display: flex; background: #333; border-radius: 12px; padding: 5px; margin-bottom: 20px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); }
+    .tab-btn { flex: 1; border: none; background: none; color: #888; padding: 12px; font-weight: bold; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+    .tab-btn.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(255,152,0,0.4); }
+
+    .shift-card { background: var(--card-bg); border-radius: 12px; padding: 18px; margin-bottom: 12px; border-left: 6px solid var(--accent); box-shadow: 0 6px 15px rgba(0,0,0,0.4); }
+    .date { font-size: 14px; color: #ffb74d; margin-bottom: 8px; font-weight: bold; }
+    .time { font-size: 22px; font-weight: bold; color: #fff; letter-spacing: 1px; }
+    .staff-row { font-size: 15px; padding: 5px 0; border-bottom: 1px dashed #444; display: flex; justify-content: space-between; }
+    .staff-row:last-child { border-bottom: none; }
+    .staff-name { color: var(--accent); font-weight: bold; }
+    
+    .hidden { display: none; }
+    #loading { text-align: center; padding: 100px 20px; font-weight: bold; color: var(--accent); font-size: 18px; }
+  </style>
+</head>
+<body>
+
+  <h2>🐔 鶏やま シフト掲示板</h2>
+
+  <div class="tab-container">
+    <button id="tab-my" class="tab-btn active" onclick="switchTab('my')">マイシフト</button>
+    <button id="tab-all" class="tab-btn" onclick="switchTab('all')">みんなのシフト</button>
+  </div>
+
+  <div id="loading">司令部からデータ受信中...🐧💨</div>
+  <div id="shift-list"></div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+    // ⚔️ 司令部から支給された秘密の鍵
+    const LIFF_ID = "2009333479-SgIRcYL0";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzsGy-NqibSVYLjB4T6yy1p3rZ2COkkt_85YyCVgc3t9_FvGaN7nAxsWBMLeA6VGVX7/exec";
+
+    let currentUserId = "";
+    let shiftData = null;
+
+    async function init() {
+      try {
+        await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) { liff.login(); return; }
+        const profile = await liff.getProfile();
+        currentUserId = profile.userId;
+        
+        const res = await fetch(GAS_URL);
+        shiftData = await res.json();
+        
+        document.getElementById('loading').classList.add('hidden');
+        renderMyShifts();
+      } catch (err) {
+        document.getElementById('loading').innerText = "通信エラーだペン...再読み込みしてね！";
+        console.error(err);
+      }
+    }
+
+    function renderMyShifts() {
+      const container = document.getElementById('shift-list');
+      container.innerHTML = "";
+      
+      const me = shiftData.staffList.find(s => s.userId === currentUserId);
+      if (!me) { container.innerHTML = "<p style='text-align:center;'>データが見つからないペン！<br>一度シフトを送ってみてね。</p>"; return; }
+
+      shiftData.headers.forEach((date, i) => {
+        if (!date) return; // 空列防止
+        const sTime = me.shifts[i * 2];
+        const eTime = me.shifts[i * 2 + 1];
+        if (sTime && eTime) {
+          const card = document.createElement('div');
+          card.className = "shift-card";
+          card.innerHTML = `<div class="date">${date}</div><div class="time">${sTime} 〜 ${eTime}</div>`;
+          container.appendChild(card);
+        }
+      });
+      if (!container.innerHTML) container.innerHTML = "<p style='text-align:center;'>予定されているシフトはないペン！🍵</p>";
+    }
+
+    function renderAllShifts() {
+      const container = document.getElementById('shift-list');
+      container.innerHTML = "";
+
+      shiftData.headers.forEach((date, i) => {
+        if (!date) return;
+        let html = "";
+        shiftData.staffList.forEach(staff => {
+          const s = staff.shifts[i * 2];
+          const e = staff.shifts[i * 2 + 1];
+          if (s && e) {
+            html += `<div class="staff-row"><span class="staff-name">${staff.name}</span> <span>${s}〜${e}</span></div>`;
+          }
+        });
+
+        if (html) {
+          const card = document.createElement('div');
+          card.className = "shift-card";
+          card.innerHTML = `<div class="date">${date}</div><div class="staff-list">${html}</div>`;
+          container.appendChild(card);
+        }
+      });
+    }
+
+    function switchTab(type) {
+      document.getElementById('tab-my').classList.toggle('active', type === 'my');
+      document.getElementById('tab-all').classList.toggle('active', type === 'all');
+      if (type === 'my') renderMyShifts(); else renderAllShifts();
+    }
+
+    init();
+  </script>
+</body>
+</html>
